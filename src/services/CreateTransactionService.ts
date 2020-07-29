@@ -1,8 +1,9 @@
-// import AppError from '../errors/AppError';
+import { getRepository, getCustomRepository } from 'typeorm';
+import AppError from '../errors/AppError';
 
-import { getRepository } from 'typeorm';
 import Transaction from '../models/Transaction';
 import Category from '../models/Category';
+import TransactionRepository from '../repositories/TransactionsRepository';
 
 interface TransactionObject {
   title: string;
@@ -18,13 +19,19 @@ class CreateTransactionService {
     type,
     category,
   }: TransactionObject): Promise<Transaction> {
-    const transactionRepository = getRepository(Transaction);
+    const transactionRepository = getCustomRepository(TransactionRepository);
     const categoryRepository = getRepository(Category);
     let currentCategory: Category | undefined;
 
     currentCategory = await categoryRepository.findOne({
       where: { title: category },
     });
+
+    const { total } = await transactionRepository.getBalance();
+
+    if (type === 'outcome' && value > total) {
+      throw new AppError("You aren't able to outcome value this transaction");
+    }
 
     if (!currentCategory) {
       currentCategory = categoryRepository.create({
