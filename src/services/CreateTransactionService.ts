@@ -29,9 +29,9 @@ class CreateTransactionService {
 
     const { total } = await transactionRepository.getBalance();
 
-    if (type === 'outcome' && value > total) {
-      throw new AppError("You aren't able to outcome value this transaction");
-    }
+    // if (type === 'outcome' && value > total) {
+    //   throw new AppError("You aren't able to outcome value this transaction");
+    // }
 
     if (!currentCategory) {
       currentCategory = categoryRepository.create({
